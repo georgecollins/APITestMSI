@@ -34,6 +34,24 @@ public class TestAPIBehaviour : MonoBehaviour {
         StartCoroutine(GetText());
 	}
 
+    public class JsonExample
+    {
+        public int id;
+        public string name;
+        public double data;
+    }
+
+    public class JsonTest
+    {
+        public string name;
+    }
+
+    public class StockTest
+    {
+        public double actualEPS;
+        public string fiscalPeriod;
+    }
+
     IEnumerator GetText()
     {
         UnityWebRequest www = UnityWebRequest.Get("https://api.iextrading.com/1.0/stock/aapl/earnings/1");
@@ -52,6 +70,13 @@ public class TestAPIBehaviour : MonoBehaviour {
 
             string s = System.Text.Encoding.UTF8.GetString(results);
 
+
+            StockTest st = JsonUtility.FromJson<StockTest>(s);
+
+
+            Debug.Log(st.actualEPS.ToString());
+            Debug.Log(st.fiscalPeriod);
+
             // Object info = JsonUtility.FromJson<Object>(s);
 
             EarningsArray info = JsonUtility.FromJson<EarningsArray>(s);
@@ -64,12 +89,33 @@ public class TestAPIBehaviour : MonoBehaviour {
             EarningsDataResponse edr = JsonUtility.FromJson<EarningsDataResponse>(s);
             Debug.Log(edr.announceTime);
 
-            string temp = "{ \"actualEPS\":2.34,\"consensusEPS\":2.17,\"estimatedEPS\":2.17,\"announceTime\":\"AMC\",\"numberOfEstimates\":10,\"EPSSurpriseDollar\":0.17,\"EPSReportDate\":\"2018-07-31\",\"fiscalPeriod\":\"Q3 2018\",\"fiscalEndDate\":\"2018-06-30\",\"yearAgo\":1.67,\"yearAgoChangePercent\":0.40119760479041916,\"estimatedChangePercent\":0.29940119760479045,\"symbolId\":11}";
+            string temp = "{\"actualEPS\":2.34,\"consensusEPS\":2.17,\"estimatedEPS\":2.17,\"announceTime\":\"AMC\",\"numberOfEstimates\":10,\"EPSSurpriseDollar\":0.17,\"EPSReportDate\":\"2018-07-31\",\"fiscalPeriod\":\"Q3 2018\",\"fiscalEndDate\":\"2018-06-30\",\"yearAgo\":1.67,\"yearAgoChangePercent\":0.40119760479041916,\"estimatedChangePercent\":0.29940119760479045,\"symbolId\":11}";
             EarningsDataResponse edr2 = JsonUtility.FromJson<EarningsDataResponse>(temp);
 
             Debug.Log(edr2.announceTime);
 
             Debug.Log("this is drving crazy" + temp);
+
+
+
+            JsonExample j = new JsonExample();
+            j.id = 12;
+            j.name = "Fred";
+            j.data =3.141;
+
+            s = JsonUtility.ToJson(j);
+
+
+            Debug.Log(s);
+
+            JsonExample aread = JsonUtility.FromJson<JsonExample>(s);
+
+            Debug.Log(aread.name);
+
+            JsonTest tread = JsonUtility.FromJson<JsonTest>(s);
+
+            Debug.Log(tread.name);
+
         }
     }
 	
