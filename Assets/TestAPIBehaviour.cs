@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.UI;
 
 public class TestAPIBehaviour : MonoBehaviour {
 
+    int one_time_flag = 0;
 
     public class EarningsDataResponse
     {
@@ -23,9 +25,30 @@ public class TestAPIBehaviour : MonoBehaviour {
         public int symbolId;  // Represents the IEX id for the stock
 
     }
+
+    // Company Info
+    // https://iextrading.com/developer/docs/#company
+    // example /stock/aapl/company
+
+    public class CompanyInfo
+    {
+        public string symbol;
+        public string companyName;
+        public string exchange;
+        public string industry;
+        public string website;
+        public string description;
+        public string CEO;
+        public string issueType;
+        public string sector;
+        public string tags;  // an array - it probably won't read correctly
+    }
+
     // Use this for initialization
     void Start () {
-        StartCoroutine(GetText());
+        // StartCoroutine(GetText());
+
+        StartCoroutine(GetCompanyInfo());
 	}
 
     public class JsonExample
@@ -109,30 +132,33 @@ public class TestAPIBehaviour : MonoBehaviour {
 
             // Scratch tests
 
-            /*
-            JsonExample j = new JsonExample();
-            j.id = 12;
-            j.name = "Fred";
-            j.data =3.141;
 
-            s = JsonUtility.ToJson(j);
-
-
-            Debug.Log(s);
-
-            JsonExample aread = JsonUtility.FromJson<JsonExample>(s);
-
-            Debug.Log(aread.name);
-
-            JsonTest tread = JsonUtility.FromJson<JsonTest>(s);
-
-            Debug.Log(tread.name);
-            */
         }
     }
-	
-	// Update is called once per frame
-	void Update () {
-		
+
+    IEnumerator GetCompanyInfo()
+    {
+        UnityWebRequest www = UnityWebRequest.Get("https://api.iextrading.com/1.0/stock/aapl/company");
+        yield return www.SendWebRequest();
+
+        if (www.isNetworkError || www.isHttpError)
+        {
+            Debug.Log(www.error);
+        }
+        else
+        {
+            byte[] results = www.downloadHandler.data;
+            string s = System.Text.Encoding.UTF8.GetString(results);
+            CompanyInfo info = JsonUtility.FromJson<CompanyInfo>(s);
+            GameObject co_disp = GameObject.Find("CompanyText");
+            co_disp.GetComponent<Text>().text = info.description;
+
+        }
+    }
+    // Update is called once per frame
+
+    void Update ()
+    {
+        GetCompanyInfo();
 	}
 }
